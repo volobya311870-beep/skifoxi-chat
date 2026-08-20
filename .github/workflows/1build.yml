@@ -1,0 +1,38 @@
+name: Build SkiFoxi Mesh APK
+
+on:
+  push:
+    branches: [ main, master, основной ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: '3.10'
+
+    - name: Install System Dependencies
+      run: |
+        sudo apt-get update
+        sudo apt-get install -y openjdk-17-jdk zip unzip autoconf libtool pkg-config zlib1g-dev libncurses5-dev libbz2-dev libreadline-dev libffi-dev libx11-dev libxpm-dev libjpeg-dev libssl-dev python3-pip python3-setuptools python3-wheel
+
+    - name: Install Buildozer and Cython
+      run: |
+        pip install --upgrade buildozer cython==0.29.33 virtualenv
+
+    - name: Build with Buildozer
+      run: |
+        yes | buildozer android debug
+
+    - name: Upload APK Artifact
+      uses: actions/upload-artifact@v4
+      with:
+        name: SkiFoxi-Mesh-Chat-APK
+        path: bin/*.apk
